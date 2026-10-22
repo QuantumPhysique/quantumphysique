@@ -1,0 +1,52 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: 🔍 Lint & test
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7
+      - name: Set Flutter version
+        run: |
+          export FLUTTER_VERSION="$(sed -E -n -e 's/^.*flutter:\ ">=([0-9.]+)"/\1/p' pubspec.yaml)"
+          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+      - name: ⚙️ Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "${{ env.FLUTTER_VERSION }}"
+          channel: 'stable'
+      - name: 📦 Cache Flutter SDK
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.FLUTTER_ROOT }}
+          key: flutter-sdk-${{ runner.os }}-${{ env.FLUTTER_VERSION }}
+          restore-keys: |
+            flutter-sdk-${{ runner.os }}-
+      - name: 📦 Cache Pub dependencies
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+      - name: Pub Get Packages
+        run: |
+          flutter --disable-analytics
+          flutter pub get --enforce-lockfile
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+      - name: Lint dart code
+        run: flutter analyze
+      - name: 🧪 Run tests
+        run: flutter test
