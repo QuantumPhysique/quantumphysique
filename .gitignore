@@ -1,0 +1,17 @@
+# Flutter and Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+coverage/
+devtools_options.yaml
+
+# Editors and OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Local tooling
+.claude/settings.local.json
+.githooks/
