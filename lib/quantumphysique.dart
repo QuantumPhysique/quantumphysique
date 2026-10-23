@@ -1,7 +1,5 @@
-/// Shared Flutter library for QuantumPhysique apps.
-///
-/// Provides shared theme, preferences, notifier, settings pages, dialog
-/// patterns, bento widgets, and the changelog system.
+/// Shared Flutter library for QuantumPhysique apps: theme, preferences,
+/// notifier, widgets, settings pages and changelog generator.
 library;
 
 // Utils
