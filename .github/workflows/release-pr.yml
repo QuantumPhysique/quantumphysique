@@ -1,0 +1,57 @@
+# Prepares a release: opens (or refreshes) the dev → main release PR, titled
+# with the version the merge will mint and carrying its release notes.
+# Trigger it from the Actions tab or with `gh workflow run release-pr.yml`;
+# rerun it after further pushes to dev and it updates the open PR in place.
+# After the merge, tag.yml mints the tag and publishes the GitHub release.
+#
+# GITHUB_TOKEN is enough: PRs it creates trigger no pull_request workflows,
+# but CI runs on push, so the head SHA already carries its checks from when
+# it landed on dev.
+name: Release PR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  release-pr:
+    runs-on: ubuntu-latest
+    steps:
+      # main, not the dispatched ref: the merge below must simulate exactly
+      # the push tag.yml will see. fetch-depth 0 brings every branch and tag.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Open or update the release PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git merge-base --is-ancestor origin/dev HEAD; then
+            echo "::error::Nothing to release: dev has no commits that main lacks"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git merge --no-ff --no-edit origin/dev
+          next="$(.github/scripts/release.sh version main)"
+          if [ -z "$next" ]; then
+            echo "::error::Nothing to release: no fix or feature since the last release"
+            exit 1
+          fi
+
+          title="release: v${next}"
+          body="Releasing \`dev\` as **v${next}**. Merging mints the tag and publishes the GitHub release with these notes. **Merge with a merge commit**, the only method the ruleset allows onto \`main\`.
+
+          $(.github/scripts/release.sh notes)"
+          existing="$(gh pr list --base main --head dev --json number --jq '.[0].number')"
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title" --body "$body"
+            echo "::notice::Updated release PR #${existing}: ${title}"
+          else
+            gh pr create --base main --head dev --title "$title" --body "$body"
+          fi

@@ -1,6 +1,8 @@
 name: quantumphysique
 description: 'Shared Flutter library for QuantumPhysique apps: theme, preferences, notifier, widgets, settings pages and changelog generator.'
-version: 0.1.0
+# Versions live in the tags: the tag workflow sets the real one in the release
+# commit it tags, see .github/scripts/release.sh.
+version: 0.0.0-dev
 publish_to: 'none'
 
 environment:
