@@ -1,5 +1,5 @@
 name: quantumphysique
-description: Shared Flutter library for QuantumPhysique apps — theme, preferences, notifier, widgets, settings pages, and changelog system.
+description: 'Shared Flutter library for QuantumPhysique apps: theme, preferences, notifier, widgets, settings pages and changelog generator.'
 version: 0.1.0
 publish_to: 'none'
 
