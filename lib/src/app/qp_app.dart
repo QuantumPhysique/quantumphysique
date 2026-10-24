@@ -7,6 +7,7 @@ import 'package:quantumphysique/src/app/qp_reminder_registry.dart';
 import 'package:quantumphysique/src/app/qp_system_color_builder.dart';
 import 'package:quantumphysique/src/notifier/qp_notifier.dart';
 import 'package:quantumphysique/src/preferences/qp_preferences.dart';
+import 'package:quantumphysique/src/theme/qp_expressive.dart';
 import 'package:quantumphysique/src/theme/qp_system_colors.dart';
 import 'package:quantumphysique/src/types/first_day_localizations_delegate.dart';
 import 'package:quantumphysique/src/types/logger.dart';
@@ -33,6 +34,7 @@ class QPApp<N extends QPNotifier> extends StatefulWidget {
     this.onGenerateTitle,
     this.initialRoute = '/',
     this.onboardingBuilder,
+    this.expressive = false,
     super.key,
   });
 
@@ -85,6 +87,12 @@ class QPApp<N extends QPNotifier> extends StatefulWidget {
   /// The host app is responsible for setting [QPPreferences.showOnBoarding]
   /// to `false` when the user finishes onboarding.
   final WidgetBuilder? onboardingBuilder;
+
+  /// Whether the app opts into the Material 3 Expressive style.
+  ///
+  /// Covers every component that supports it so far, and grows with each
+  /// material_ui and quantumphysique release.
+  final bool expressive;
 
   @override
   State<QPApp<N>> createState() => _QPAppState<N>();
@@ -183,6 +191,9 @@ class _QPAppState<N extends QPNotifier> extends State<QPApp<N>> {
     });
   }
 
+  ThemeData _styled(ThemeData theme) =>
+      widget.expressive ? qpExpressiveTheme(theme) : theme;
+
   @override
   Widget build(BuildContext context) {
     if (!_ready) {
@@ -209,8 +220,8 @@ class _QPAppState<N extends QPNotifier> extends State<QPApp<N>> {
               }
               return MaterialApp(
                 navigatorKey: _navigatorKey,
-                theme: notifier.lightTheme,
-                darkTheme: notifier.darkTheme,
+                theme: _styled(notifier.lightTheme),
+                darkTheme: _styled(notifier.darkTheme),
                 themeMode: notifier.themeMode,
                 locale: notifier.locale,
                 localizationsDelegates: <LocalizationsDelegate<dynamic>>[
