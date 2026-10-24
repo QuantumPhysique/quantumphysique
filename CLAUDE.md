@@ -19,7 +19,7 @@ flutter pub get --enforce-lockfile
 
 **Format, analyze and test once, on the finished change.** They are the gate before commit and PR, not a step after every edit. In between, run only what answers a concrete question, usually one test file.
 
-CI (`check.yml`) runs `flutter pub get --enforce-lockfile`, `dart format --set-exit-if-changed`, `flutter analyze` and `flutter test` on every push to `main` and every PR, with the Flutter version from the lower bound in `pubspec.yaml`.
+CI (`check.yml`) runs `flutter pub get --enforce-lockfile`, `dart format --set-exit-if-changed`, `flutter analyze` and `flutter test` on every push to `dev` and `main` and every PR, with the Flutter version from the lower bound in `pubspec.yaml`.
 
 ## Trying a change in an app
 
@@ -35,26 +35,25 @@ Run the apps that use qp against the change before opening the PR; they get it w
 
 ## Branching and release
 
-- `main` is the only long-lived branch; feature branches `feat/<topic>`, `fix/<topic>`, `ci/<topic>`, `chore/<topic>` off `main`, back by merge commit. Never commit to `main` directly.
-- Every commit lands on `main` as it is (no squash), so every commit is a conventional commit, see `/commit`. The PR title uses the same format.
-- Versions are prepared with `/release`: a `release/prepare_vX.Y.Z` branch with one `chore: prepare vX.Y.Z` commit that turns `[Unreleased]` in `CHANGELOG.md` into `[X.Y.Z] - <date>` and sets `version: X.Y.Z` in `pubspec.yaml`. Only after merge: a GitHub release tagged `vX.Y.Z` with the changelog section as body. Never create tags by hand, never move or delete one.
-- pub reads each version from `pubspec.yaml` at the tagged commit and ignores a tag that disagrees with it, so tag and `version:` must match.
-- Semver, in 0.x: a breaking change bumps the minor (0.1 → 0.2), everything else the patch.
+- `dev` is the default branch, `main` the released one. Feature branches `feat/<topic>`, `fix/<topic>`, `ci/<topic>`, `chore/<topic>` go off `dev` and back by squash merge; `dev` reaches `main` only through the release PR, by merge commit. Nobody commits to `dev` or `main` directly: the rulesets in `.github/rulesets/`, applied by `.github/scripts/setup-repo.sh`, enforce all of this.
+- The squash commit is the PR title and body, so the PR title is a conventional commit (CI lints it) and decides the release: `fix` and `perf` bump the patch, `feat` the minor, `!` or a `BREAKING CHANGE:` footer the major. Before 1.0 a breaking change bumps the minor and everything else the patch. All other types release nothing.
+- `tag.yml` tags every merge that releases: `vX.Y.Z-dev.N` on `dev`, `vX.Y.Z` plus a GitHub release on `main`. `/release` opens the release PR from `dev` onto `main`; merging it is the maintainer's call.
+- pub reads each version from `pubspec.yaml` at the tagged commit and ignores a tag that disagrees with it, while the branches carry `version: 0.0.0-dev`. So each tag sits on a release commit of its own that only sets `version:` and is on no branch (`.github/scripts/release.sh`). Never create tags by hand; the `v*` ruleset blocks moving or deleting one, which would orphan its release commit.
 
-## Changelog
+## Release notes
 
-`CHANGELOG.md` is read by the developers of the apps when they upgrade. Every change an app can notice adds to `[Unreleased]`, in the sections `Breaking`, `Added`, `Changed`, `Fixed`.
+The GitHub release of each `vX.Y.Z` is the changelog, read by the developers of the apps when they upgrade. `release.sh notes` writes it from the squash commits since the last release, in the sections `Breaking`, `Added` (`feat`) and `Fixed` (`fix`, `perf`): the PR title is the line.
 
-- One line per change, in terms of the public API: what an app sees, not how it is done
+- PR titles in terms of the public API: what an app sees, not how it is done
 - Breaking is anything that makes an app fail to compile or behave differently without a change on its side: a removed or renamed export, a new required parameter or `QPStrings` field, a changed default or preference key
-- Every `Breaking` line says what an app has to change
-  - Bad: `Reworked the reminder strings`
-  - Good: `` `QPStrings` takes a required `reminderTitle`; apps add a `qp_reminderTitle` key ``
-- Changes an app cannot see (refactoring, tests, CI, tooling) get no line
+- A breaking PR has `!` in its title and ends its body with a `BREAKING CHANGE:` footer saying what an app has to change; the footer becomes its line
+  - Bad: `BREAKING CHANGE: reworked the reminder strings`
+  - Good: `` BREAKING CHANGE: `QPStrings` takes a required `reminderTitle`; apps add a `qp_reminderTitle` key ``
+- Changes an app cannot see (refactoring, tests, CI, tooling) take a type that releases nothing: `refactor`, `test`, `ci`, `build`, `docs`, `chore`
 
 ## Unreleased changes
 
-Released means tagged. Everything else (`[Unreleased]` on `main`, any branch, your own earlier commits in a PR) has reached no app. Changing or removing it needs no deprecation path and no compatibility shim: delete the old code together with its tests, and say so in one line of the PR body.
+Released means a stable tag `vX.Y.Z`. A dev tag `vX.Y.Z-dev.N` is a preview to try a change in an app; apps ship only stable tags. Everything else (`dev` since the last release, any branch, your own earlier commits in a PR) has reached no shipped app. Changing or removing it needs no deprecation path and no compatibility shim: delete the old code together with its tests, and say so in one line of the PR body.
 
 Released state is different: the apps ship the preference keys and stored values that `QPPreferences` writes. Never rename or reuse a key; a changed key or value format needs an explicit migration, not a silent fallback.
 
