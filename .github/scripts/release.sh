@@ -74,10 +74,9 @@ next_version() {
 
   IFS=. read -r major minor patch <<<"${last#v}"
   major="${major:-0}" minor="${minor:-0}" patch="${patch:-0}"
-  # Before 1.0 a breaking change bumps the minor and everything else the patch
+  # Before 1.0 a breaking change bumps the minor, like a feature
   case "$major:$bump" in
     0:breaking) next="0.$((minor + 1)).0" ;;
-    0:*) next="0.${minor}.$((patch + 1))" ;;
     *:breaking) next="$((major + 1)).0.0" ;;
     *:feat) next="${major}.$((minor + 1)).0" ;;
     *) next="${major}.${minor}.$((patch + 1))" ;;
