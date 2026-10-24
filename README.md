@@ -70,7 +70,7 @@ once upstream releases a version that compiles.
 
 | `version:` | Takes |
 |---|---|
-| `^0.2.0` | the newest release from 0.2.0 up to the next breaking one |
+| `^0.2.0` | the newest 0.2.x; before 1.0 that is fixes only, features and breaking changes come as 0.3.0 |
 | `0.2.1` | exactly 0.2.1 |
 | `^0.3.0-dev.1` | the newest preview of 0.3.0, and 0.3.x releases once they exist |
 
@@ -83,7 +83,8 @@ only releases: previews carry no compatibility promise.
 `pubspec.lock` pins the resolved commit, so `flutter pub get` keeps it.
 `flutter pub upgrade quantumphysique` moves to the newest version within the
 constraint; `flutter pub upgrade --major-versions quantumphysique` also takes
-a breaking one. The release notes list what to change for it.
+the next minor release before 1.0, or the next major from 1.0 on. The release
+notes list what to change for it.
 
 ## Usage
 

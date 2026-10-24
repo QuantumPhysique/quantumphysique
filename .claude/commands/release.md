@@ -16,4 +16,4 @@ Usage: `/release`. The version and the release notes come from the squash commit
 
 Merging the release PR, with a merge commit, is the maintainer's call: never merge it. `tag.yml` then tags `vX.Y.Z` and publishes the GitHub release. Never create, push, move or delete a tag yourself.
 
-The apps then move to the release with `flutter pub upgrade quantumphysique`, or `flutter pub upgrade --major-versions quantumphysique` across a breaking one.
+The apps then move to the release with `flutter pub upgrade quantumphysique`, or `flutter pub upgrade --major-versions quantumphysique` across a new minor (before 1.0) or major version.

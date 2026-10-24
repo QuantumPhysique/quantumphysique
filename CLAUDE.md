@@ -36,7 +36,7 @@ Run the apps that use qp against the change before opening the PR; they get it w
 ## Branching and release
 
 - `dev` is the default branch, `main` the released one. Feature branches `feat/<topic>`, `fix/<topic>`, `ci/<topic>`, `chore/<topic>` go off `dev` and back by squash merge; `dev` reaches `main` only through the release PR, by merge commit. Nobody commits to `dev` or `main` directly: the rulesets in `.github/rulesets/`, applied by `.github/scripts/setup-repo.sh`, enforce all of this.
-- The squash commit is the PR title and body, so the PR title is a conventional commit (CI lints it) and decides the release: `fix` and `perf` bump the patch, `feat` the minor, `!` or a `BREAKING CHANGE:` footer the major. Before 1.0 a breaking change bumps the minor and everything else the patch. All other types release nothing.
+- The squash commit is the PR title and body, so the PR title is a conventional commit (CI lints it) and decides the release: `fix` and `perf` bump the patch, `feat` the minor, `!` or a `BREAKING CHANGE:` footer the major. Before 1.0 a breaking change bumps the minor, like a `feat`. All other types release nothing.
 - `tag.yml` tags every merge that releases: `vX.Y.Z-dev.N` on `dev`, `vX.Y.Z` plus a GitHub release on `main`. `/release` opens the release PR from `dev` onto `main`; merging it is the maintainer's call.
 - pub reads each version from `pubspec.yaml` at the tagged commit and ignores a tag that disagrees with it, while the branches carry `version: 0.0.0-dev`. So each tag sits on a release commit of its own that only sets `version:` and is on no branch (`.github/scripts/release.sh`). Never create tags by hand; the `v*` ruleset blocks moving or deleting one, which would orphan its release commit.
 
