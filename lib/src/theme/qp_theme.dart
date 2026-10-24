@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:quantumphysique/src/notifier/qp_notifier.dart';
+import 'package:quantumphysique/src/theme/qp_expressive.dart';
 import 'package:quantumphysique/src/theme/qp_system_colors.dart';
 import 'package:quantumphysique/src/types/contrast.dart';
 import 'package:quantumphysique/src/types/scheme_variant.dart';
@@ -23,6 +24,7 @@ class QPTheme {
     this.isAmoled = false,
     this.contrast = 0.0,
     this.systemColors,
+    this.expressive = false,
   });
 
   /// Returns a copy with the given fields replaced.
@@ -33,6 +35,7 @@ class QPTheme {
     double? contrast,
     DynamicSchemeVariant? schemeVariant,
     QPSystemColors? systemColors,
+    bool? expressive,
   }) {
     return QPTheme(
       brightness: brightness ?? this.brightness,
@@ -41,6 +44,7 @@ class QPTheme {
       contrast: contrast ?? this.contrast,
       schemeVariant: schemeVariant ?? this.schemeVariant,
       systemColors: systemColors ?? this.systemColors,
+      expressive: expressive ?? this.expressive,
     );
   }
 
@@ -56,8 +60,10 @@ class QPTheme {
     if (notifier == null) {
       return null;
     }
-    final bool isLight = Theme.of(context).brightness == Brightness.light;
+    final ThemeData theme = Theme.of(context);
+    final bool isLight = theme.brightness == Brightness.light;
     final QPSystemColors? systemColors = notifier.activeSystemColors;
+    final bool expressive = theme.extension<QPExpressiveExtension>() != null;
     if (isLight) {
       return QPTheme(
         seedColor: notifier.seedColor,
@@ -65,6 +71,7 @@ class QPTheme {
         schemeVariant: notifier.schemeVariant.toDynamicSchemeVariant,
         contrast: notifier.contrastLevel.contrast,
         systemColors: systemColors,
+        expressive: expressive,
       );
     }
     if (notifier.isAmoled) {
@@ -75,6 +82,7 @@ class QPTheme {
         contrast: notifier.contrastLevel.contrast,
         isAmoled: true,
         systemColors: systemColors,
+        expressive: expressive,
       );
     }
     return QPTheme(
@@ -83,6 +91,7 @@ class QPTheme {
       schemeVariant: notifier.schemeVariant.toDynamicSchemeVariant,
       contrast: notifier.contrastLevel.contrast,
       systemColors: systemColors,
+      expressive: expressive,
     );
   }
 
@@ -107,6 +116,10 @@ class QPTheme {
   /// every role from the system's palettes instead of seeding from
   /// [seedColor].
   QPSystemColors? systemColors;
+
+  /// Whether the app opted into Material 3 Expressive, see
+  /// `QPApp.expressive`.
+  late bool expressive;
 
   // ── Layout constants ────────────────────────────────────────────────────────
 
@@ -254,21 +267,23 @@ class QPTheme {
     const ProgressIndicatorThemeData progressIndicatorTheme =
         // ignore: deprecated_member_use
         ProgressIndicatorThemeData(year2023: false);
-    return ThemeData.from(
-      textTheme: txtTheme,
-      colorScheme: colorScheme,
-      useMaterial3: true,
-    ).copyWith(
-      listTileTheme: listTileThemeData,
-      sliderTheme: sliderTheme,
-      cardTheme: cardTheme,
-      progressIndicatorTheme: progressIndicatorTheme,
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: <TargetPlatform, PageTransitionsBuilder>{
-          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-        },
-      ),
-    );
+    final ThemeData theme =
+        ThemeData.from(
+          textTheme: txtTheme,
+          colorScheme: colorScheme,
+          useMaterial3: true,
+        ).copyWith(
+          listTileTheme: listTileThemeData,
+          sliderTheme: sliderTheme,
+          cardTheme: cardTheme,
+          progressIndicatorTheme: progressIndicatorTheme,
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+            },
+          ),
+        );
+    return expressive ? qpExpressiveTheme(theme) : theme;
   }
 
   /// Returns an AMOLED copy of this theme (pure-black background).
