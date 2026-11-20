@@ -129,9 +129,10 @@ use. `onExtraInit` runs the app's own async setup, such as opening a database,
 before the first frame.
 
 `expressive: true` opts the app into Material 3 Expressive, which material_ui
-still marks as under development. So far it restyles the icon buttons; more
-components and the package's own widgets follow with later releases, which
-read the switch through `QPTheme.of(context)!.expressive`.
+still marks as under development. So far it restyles the icon and elevated
+buttons and moves the bento card shapes and the extended FAB with Material
+springs; more components and widgets follow with later releases, which read
+the switch through `QPTheme.of(context)!.expressive`.
 
 ### Strings
 
