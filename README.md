@@ -38,14 +38,14 @@ as well.
 
 ## Install
 
-The package needs Flutter 3.47.1 or newer. Every release is a git tag
+The package needs Flutter 3.50.1 or newer. Every release is a git tag
 `vX.Y.Z`, and every fix or feature merged in between a preview tag
 `vX.Y.Z-dev.N`. pub finds both through `tag_pattern`, and reads that key only
 when the lower bound of the app's `environment: sdk:` is 3.9 or higher.
 
 ```yaml
 dependencies:
-  material_ui: ^1.8.0
+  material_ui: ^1.11.1
   quantumphysique:
     git:
       url: https://github.com/QuantumPhysique/quantumphysique.git
