@@ -21,6 +21,10 @@ ThemeData qpExpressiveTheme(ThemeData theme) => theme.copyWith(
     style: theme.iconButtonTheme.style,
     variant: StyleVariant.material3Expressive,
   ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: theme.elevatedButtonTheme.style,
+    variant: StyleVariant.material3Expressive,
+  ),
   extensions: theme.extensions.values.followedBy(const <QPExpressiveExtension>[
     QPExpressiveExtension(),
   ]),
