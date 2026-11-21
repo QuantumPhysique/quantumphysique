@@ -180,12 +180,15 @@ class QPGroupedChip extends StatelessWidget {
         selected ? size / 2 : QPLayout.innerBorderRadius,
       ),
     );
+    final (Duration duration, Curve curve) = QPTheme.of(context)!.expressive
+        ? (qpSelectionSpring.duration, qpSelectionSpring)
+        : (QPLayout.transitionNormal, Curves.easeInOutCubic);
 
     return SizedBox.square(
       dimension: size,
       child: AnimatedContainer(
-        duration: QPLayout.transitionNormal,
-        curve: Curves.easeInOutCubic,
+        duration: duration,
+        curve: curve,
         decoration: ShapeDecoration(
           color: selected ? colors.primary : (color ?? colors.surfaceContainer),
           shape: shape,
