@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:quantumphysique/src/theme/qp_expressive.dart';
+import 'package:quantumphysique/src/theme/qp_theme.dart';
 import 'package:quantumphysique/src/types/font.dart';
 
 import 'qp_layout.dart';
@@ -42,10 +44,13 @@ class QPFilterChip extends StatelessWidget {
       borderRadius: BorderRadius.circular(QPLayout.bentoPadding),
       side: selected ? BorderSide.none : BorderSide(color: cs.outlineVariant),
     );
+    final (Duration duration, Curve curve) = QPTheme.of(context)!.expressive
+        ? (qpSelectionSpring.duration, qpSelectionSpring)
+        : (QPLayout.transitionFast, Curves.easeInOut);
 
     return AnimatedContainer(
-      duration: QPLayout.transitionFast,
-      curve: Curves.easeInOut,
+      duration: duration,
+      curve: curve,
       decoration: ShapeDecoration(color: background, shape: shape),
       clipBehavior: Clip.antiAlias,
       height: QPLayout.chipHeight,
@@ -63,8 +68,8 @@ class QPFilterChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               AnimatedSize(
-                duration: QPLayout.transitionFast,
-                curve: Curves.easeInOut,
+                duration: duration,
+                curve: curve,
                 child: selected
                     ? Padding(
                         padding: const EdgeInsets.only(

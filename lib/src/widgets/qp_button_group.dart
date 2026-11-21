@@ -1,4 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:quantumphysique/src/theme/qp_expressive.dart';
+import 'package:quantumphysique/src/theme/qp_theme.dart';
 
 import 'qp_layout.dart';
 
@@ -156,9 +158,13 @@ class _QPButtonGroupSegment<T> extends StatelessWidget {
       ),
     );
 
+    final (Duration duration, Curve curve) = QPTheme.of(context)!.expressive
+        ? (qpSelectionSpring.duration, qpSelectionSpring)
+        : (QPLayout.transitionFast, Curves.easeInOut);
+
     return AnimatedContainer(
-      duration: QPLayout.transitionFast,
-      curve: Curves.easeInOut,
+      duration: duration,
+      curve: curve,
       decoration: ShapeDecoration(color: background, shape: shape),
       clipBehavior: Clip.antiAlias,
       height: QPLayout.controlHeight,
