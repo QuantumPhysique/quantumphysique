@@ -1,11 +1,13 @@
 name: quantumphysique
 description: 'Shared Flutter library for QuantumPhysique apps: theme, preferences, notifier, widgets, settings pages and changelog generator.'
-version: 0.1.0
+# Versions live in the tags: the tag workflow sets the real one in the release
+# commit it tags, see .github/scripts/release.sh.
+version: 0.0.0-dev
 publish_to: 'none'
 
 environment:
   sdk: ">=3.11.0 <4.0.0"
-  flutter: ">=3.47.1"
+  flutter: ">=3.50.1"
 
 dependencies:
   flutter:
@@ -15,10 +17,10 @@ dependencies:
 
   dynamic_color: ^2.1.0
   flutter_auto_size_text: ^5.0.0
-  flutter_local_notifications: ^21.0.0
+  flutter_local_notifications: ">=21.0.0 <23.0.0"
   intl: ^0.20.2
   material_color_utilities: ^0.13.0
-  material_ui: ^1.8.0
+  material_ui: ^1.11.1
   package_info_plus: ^10.2.1
   phosphor_flutter: ^2.1.0
   provider: ^6.1.5+1

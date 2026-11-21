@@ -1,0 +1,59 @@
+# Mints a version tag on every merge that carries a feature or fix, derived
+# from the conventional commits since the last release (see
+# .github/scripts/release.sh):
+#
+#   push to dev  → pre-release tag vX.Y.Z-dev.N
+#   push to main → release tag vX.Y.Z + GitHub release with the notes
+#
+# Each tag sits on a release commit that only sets `version:` and is on no
+# branch, so no branch ever gets a bot commit and none needs a back-merge.
+#
+# Tags pushed with GITHUB_TOKEN trigger no workflows (Actions recursion
+# guard): anything reacting to a release belongs here, never in an
+# `on: push: tags` workflow.
+name: Tag & Release
+
+on:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: write
+
+# Serialize minting per branch: two quick merges must not mint the same
+# version. Queued runs collapse to the newest, which tags all pending commits
+# at once.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: 🏷️ Tag
+    runs-on: ubuntu-latest
+    steps:
+      # The version comes from every tag and the full history
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Compute the version
+        id: version
+        run: echo "version=$(.github/scripts/release.sh version "$GITHUB_REF_NAME")" >> "$GITHUB_OUTPUT"
+      - name: Write the release notes
+        if: github.ref_name == 'main' && steps.version.outputs.version != ''
+        run: .github/scripts/release.sh notes > "$RUNNER_TEMP/notes.md"
+      - name: Tag the release commit
+        if: steps.version.outputs.version != ''
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          .github/scripts/release.sh tag "$VERSION"
+      - name: Create the GitHub release
+        if: github.ref_name == 'main' && steps.version.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ steps.version.outputs.version }}
+        run: gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$RUNNER_TEMP/notes.md"

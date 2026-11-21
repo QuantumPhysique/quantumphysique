@@ -6,7 +6,8 @@ notifier, widgets, settings pages and changelog generator.
 
 It is built for these apps, not as a general-purpose package. It is not on
 pub.dev, and before 1.0 every minor release may break the API; the
-[changelog](CHANGELOG.md) says what an app has to change. The library is
+[release notes](https://github.com/QuantumPhysique/quantumphysique/releases)
+say what an app has to change. The library is
 licensed under the AGPLv3+, so an app that includes it falls under the AGPLv3
 as well.
 
@@ -37,13 +38,14 @@ as well.
 
 ## Install
 
-The package needs Flutter 3.47.1 or newer. Every release is a git tag
-`vX.Y.Z`, which pub finds through `tag_pattern`; pub reads that key only when
-the lower bound of the app's `environment: sdk:` is 3.9 or higher.
+The package needs Flutter 3.50.1 or newer. Every release is a git tag
+`vX.Y.Z`, and every fix or feature merged in between a preview tag
+`vX.Y.Z-dev.N`. pub finds both through `tag_pattern`, and reads that key only
+when the lower bound of the app's `environment: sdk:` is 3.9 or higher.
 
 ```yaml
 dependencies:
-  material_ui: ^1.8.0
+  material_ui: ^1.11.1
   quantumphysique:
     git:
       url: https://github.com/QuantumPhysique/quantumphysique.git
@@ -64,12 +66,25 @@ The override is needed because `phosphor_flutter` 2.1.0 does not compile
 against Flutter 3.47, and pub ignores the overrides of a dependency. Drop it
 once upstream releases a version that compiles.
 
+### Versions
+
+| `version:` | Takes |
+|---|---|
+| `^0.2.0` | the newest 0.2.x; before 1.0 that is fixes only, features and breaking changes come as 0.3.0 |
+| `0.2.1` | exactly 0.2.1 |
+| `^0.3.0-dev.1` | the newest preview of 0.3.0, and 0.3.x releases once they exist |
+
+pub prefers a release over a preview whenever both match, so to keep following
+previews after a release, raise the lower bound to the next preview. Ship
+only releases: previews carry no compatibility promise.
+
 ### Upgrading
 
-`pubspec.lock` pins the resolved commit. `flutter pub upgrade quantumphysique`
-moves to the newest release within the constraint;
-`flutter pub upgrade --major-versions quantumphysique` also takes a breaking
-one. The [changelog](CHANGELOG.md) lists what to change for it.
+`pubspec.lock` pins the resolved commit, so `flutter pub get` keeps it.
+`flutter pub upgrade quantumphysique` moves to the newest version within the
+constraint; `flutter pub upgrade --major-versions quantumphysique` also takes
+the next minor release before 1.0, or the next major from 1.0 on. The release
+notes list what to change for it.
 
 ## Usage
 
@@ -112,6 +127,12 @@ that `gen-l10n` generates in `AppLocalizations.localizationsDelegates` carries
 the ones from `flutter_localizations` instead, which `material_ui` does not
 use. `onExtraInit` runs the app's own async setup, such as opening a database,
 before the first frame.
+
+`expressive: true` opts the app into Material 3 Expressive, which material_ui
+still marks as under development. So far it restyles the icon and elevated
+buttons and moves the bento card shapes and the extended FAB with Material
+springs; more components and widgets follow with later releases, which read
+the switch through `QPTheme.of(context)!.expressive`.
 
 ### Strings
 
@@ -198,8 +219,10 @@ flutter test
 ```
 
 CI runs the same checks on every pull request, with the lowest Flutter
-version that `pubspec.yaml` allows. A release is a GitHub release tagged
-`vX.Y.Z`, matching `version:` in `pubspec.yaml`.
+version that `pubspec.yaml` allows. Pull requests go into `dev` and are
+squash-merged, so the title is a conventional commit: it decides the next
+version and becomes the line in the release notes. CI tags every merge that
+releases; [CLAUDE.md](CLAUDE.md) has the details.
 
 ### Trying a change in an app
 

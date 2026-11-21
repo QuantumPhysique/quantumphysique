@@ -24,8 +24,12 @@ class _TestPrefs extends QPPreferences {
   String get defaultThemeName => 'testTheme';
 }
 
-DateTime _atMinute(DateTime when) =>
-    DateTime(when.year, when.month, when.day, when.hour, when.minute);
+/// Noon [days] calendar days from today. Steps of 24 hours would merge or
+/// split days across a daylight saving change.
+DateTime _noonIn(int days) {
+  final DateTime now = DateTime.now();
+  return DateTime(now.year, now.month, now.day + days, 12);
+}
 
 const QPNotificationChannel _channel = QPNotificationChannel(
   id: 'test',
@@ -170,10 +174,8 @@ void main() {
   });
 
   test('skipping a weekly reminder re-arms it a week on', () async {
-    // Reminders fire on the minute, and so does the week the registry adds.
-    final DateTime tomorrow = _atMinute(
-      DateTime.now().add(const Duration(days: 1)),
-    );
+    final DateTime tomorrow = _noonIn(1);
+    final DateTime weekOn = _noonIn(8);
     final QPReminder reminder = await schedule(
       'weight:1',
       tomorrow,
@@ -183,13 +185,13 @@ void main() {
     await registry.skipNext('weight');
 
     expect(service.cancelled, <int>[reminder.id]);
-    expect(registry.active.single.scheduledFor.difference(tomorrow).inDays, 7);
+    expect(registry.active.single.scheduledFor, weekOn);
     expect(service.armed.last.id, reminder.id);
   });
 
   test('skipOn only touches the reminder due that day', () async {
-    final DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
-    final DateTime later = DateTime.now().add(const Duration(days: 2));
+    final DateTime tomorrow = _noonIn(1);
+    final DateTime later = _noonIn(2);
     final QPReminder due = await schedule('weight:1', tomorrow);
     await schedule('weight:2', later);
 

@@ -1,9 +1,15 @@
 version: 2
 updates:
+  # PRs go into dev like every other change, and their titles must pass the
+  # conventional-commit lint there
   - package-ecosystem: "pub"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "build"
+      include: "scope"
     groups:
       pub:
         patterns:
@@ -11,8 +17,12 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
     groups:
       actions:
         patterns:
