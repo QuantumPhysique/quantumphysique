@@ -98,10 +98,12 @@ class _QPSplashState extends State<QPSplash> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          child: widget.child ?? const CircularProgressIndicator(),
-        ),
+        child: widget.child == null
+            ? const CircularProgressIndicator()
+            : SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: widget.child,
+              ),
       ),
     );
   }
