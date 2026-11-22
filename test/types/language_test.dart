@@ -10,7 +10,7 @@ void main() {
     });
 
     test('prefers the scripted tag over the bare language code', () {
-      expect(QPLanguage('zh').displayName(defaultLabel), '汉语');
+      expect(QPLanguage('zh').displayName(defaultLabel), '中文');
       expect(QPLanguage('zh-Hant').displayName(defaultLabel), '繁體中文');
     });
 
